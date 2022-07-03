@@ -1,12 +1,19 @@
 import sys
 import argparse
+from dataset_tool import create_from_images
+from train import wrapper_call
+
+try:
+    from tensorflow.python.util import module_wrapper as deprecation
+except ImportError:
+    from tensorflow.python.util import deprecation_wrapper as deprecation
+deprecation._PER_MODULE_WARNING_LIMIT = 0
 
 def create_dataset(input, output):
-    print(input)
-    print(output)
+    create_from_images(output, input, 1)
 
 def train(path):
-    print(path)
+    wrapper_call(path)
 
 def fid(path1, path2):
     print(path1)
