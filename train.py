@@ -13,6 +13,8 @@ from dnnlib import EasyDict
 
 import config
 from metrics import metric_base
+import tensorflow as tf
+tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
 #----------------------------------------------------------------------------
 # Official training configs for StyleGAN, targeted mainly for FFHQ.
@@ -185,6 +187,9 @@ def main():
     dnnlib.submit_run(**kwargs)
 
 #----------------------------------------------------------------------------
+
+def wrapper_call(config_path):
+    print(config_path)
 
 if __name__ == "__main__":
     main()

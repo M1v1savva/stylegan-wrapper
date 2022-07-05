@@ -8,6 +8,8 @@
 """Loss functions."""
 
 import tensorflow as tf
+tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
+
 import dnnlib.tflib as tflib
 from dnnlib.tflib.autosummary import autosummary
 

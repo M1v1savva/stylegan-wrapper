@@ -11,6 +11,7 @@ import os
 import numpy as np
 import scipy
 import tensorflow as tf
+tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 import dnnlib.tflib as tflib
 
 from metrics import metric_base
