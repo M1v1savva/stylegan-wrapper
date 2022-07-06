@@ -1,0 +1,9 @@
+{
+    "model_name": "cgan",
+    "dataset_name": "anime",
+    "num_gpus": 1,
+    "total_kimgs": 140,
+
+    "mirror_augment": true,
+    "output_model_arch": true
+}

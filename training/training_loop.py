@@ -10,6 +10,7 @@
 import os
 import numpy as np
 import tensorflow as tf
+tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 import dnnlib
 import dnnlib.tflib as tflib
 from dnnlib.tflib.autosummary import autosummary
@@ -19,6 +20,8 @@ import train
 from training import dataset
 from training import misc
 from metrics import metric_base
+
+import json
 
 #----------------------------------------------------------------------------
 # Just-in-time processing of training images before feeding them to the networks.
@@ -160,7 +163,13 @@ def training_loop(
             G = tflib.Network('G', num_channels=training_set.shape[0], resolution=training_set.shape[1], label_size=training_set.label_size, **G_args)
             D = tflib.Network('D', num_channels=training_set.shape[0], resolution=training_set.shape[1], label_size=training_set.label_size, **D_args)
             Gs = G.clone('Gs')
-    G.print_layers(); D.print_layers()
+    
+    with open('current_config.json') as f:
+        train_config = json.load(f)
+
+    if train_config['output_model_arch']:
+        G.print_layers() 
+        D.print_layers()
 
     print('Building TensorFlow graph...')
     with tf.name_scope('Inputs'), tf.device('/cpu:0'):

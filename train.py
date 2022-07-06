@@ -7,14 +7,16 @@
 
 """Main entry point for training StyleGAN and ProGAN networks."""
 
+
+import tensorflow as tf
+tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
+
 import copy
 import dnnlib
 from dnnlib import EasyDict
 
 import config
 from metrics import metric_base
-import tensorflow as tf
-tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
 import json
 import os
