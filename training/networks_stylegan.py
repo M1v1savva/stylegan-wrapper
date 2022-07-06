@@ -1,4 +1,4 @@
-# Copyright (c) 2019, NVIDIA CORPORATION. All rights reserved.
+﻿# Copyright (c) 2019, NVIDIA CORPORATION. All rights reserved.
 #
 # This work is licensed under the Creative Commons Attribution-NonCommercial
 # 4.0 International License. To view a copy of this license, visit
@@ -11,8 +11,6 @@ import numpy as np
 import tensorflow as tf
 import dnnlib
 import dnnlib.tflib as tflib
-tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
-
 
 # NOTE: Do not import any application-specific modules here!
 # Specify all network parameters as kwargs.
@@ -177,7 +175,7 @@ def upscale2d_conv2d(x, fmaps, kernel, fused_scale='auto', **kwargs):
     assert kernel >= 1 and kernel % 2 == 1
     assert fused_scale in [True, False, 'auto']
     if fused_scale == 'auto':
-        fused_scale = min(x.shape[2:]) * 2 >= 128
+        fused_scale = min(x.shape[2:]) * 2 >= 64
 
     # Not fused => call the individual ops directly.
     if not fused_scale:
@@ -196,7 +194,7 @@ def conv2d_downscale2d(x, fmaps, kernel, fused_scale='auto', **kwargs):
     assert kernel >= 1 and kernel % 2 == 1
     assert fused_scale in [True, False, 'auto']
     if fused_scale == 'auto':
-        fused_scale = min(x.shape[2:]) >= 128
+        fused_scale = min(x.shape[2:]) >= 64
 
     # Not fused => call the individual ops directly.
     if not fused_scale:
@@ -386,12 +384,12 @@ def G_style(
 def G_mapping(
     latents_in,                             # First input: Latent vectors (Z) [minibatch, latent_size].
     labels_in,                              # Second input: Conditioning labels [minibatch, label_size].
-    latent_size             = 512,          # Latent vector (Z) dimensionality.
-    label_size              = 0,            # Label dimensionality, 0 if no labels.
-    dlatent_size            = 512,          # Disentangled latent (W) dimensionality.
+    latent_size             = 128,          # Latent vector (Z) dimensionality.
+    label_size              = 10,            # Label dimensionality, 0 if no labels.
+    dlatent_size            = 128,          # Disentangled latent (W) dimensionality.
     dlatent_broadcast       = None,         # Output disentangled latent (W) as [minibatch, dlatent_size] or [minibatch, dlatent_broadcast, dlatent_size].
     mapping_layers          = 8,            # Number of mapping layers.
-    mapping_fmaps           = 512,          # Number of activations in the mapping layers.
+    mapping_fmaps           = 128,          # Number of activations in the mapping layers.
     mapping_lrmul           = 0.01,         # Learning rate multiplier for the mapping layers.
     mapping_nonlinearity    = 'lrelu',      # Activation function: 'relu', 'lrelu'.
     use_wscale              = True,         # Enable equalized learning rate?
@@ -441,12 +439,12 @@ def G_mapping(
 
 def G_synthesis(
     dlatents_in,                        # Input: Disentangled latents (W) [minibatch, num_layers, dlatent_size].
-    dlatent_size        = 512,          # Disentangled latent (W) dimensionality.
+    dlatent_size        = 128,          # Disentangled latent (W) dimensionality.
     num_channels        = 3,            # Number of output color channels.
-    resolution          = 1024,         # Output resolution.
+    resolution          = 128,         # Output resolution.
     fmap_base           = 8192,         # Overall multiplier for the number of feature maps.
     fmap_decay          = 1.0,          # log2 feature map reduction when doubling the resolution.
-    fmap_max            = 512,          # Maximum number of feature maps in any layer.
+    fmap_max            = 128,          # Maximum number of feature maps in any layer.
     use_styles          = True,         # Enable style inputs?
     const_input_layer   = True,         # First layer is a learned constant?
     use_noise           = True,         # Enable noise inputs?
@@ -568,10 +566,10 @@ def D_basic(
     labels_in,                          # Second input: Labels [minibatch, label_size].
     num_channels        = 1,            # Number of input color channels. Overridden based on dataset.
     resolution          = 32,           # Input resolution. Overridden based on dataset.
-    label_size          = 0,            # Dimensionality of the labels, 0 if no labels. Overridden based on dataset.
+    label_size          = 10,            # Dimensionality of the labels, 0 if no labels. Overridden based on dataset.
     fmap_base           = 8192,         # Overall multiplier for the number of feature maps.
     fmap_decay          = 1.0,          # log2 feature map reduction when doubling the resolution.
-    fmap_max            = 512,          # Maximum number of feature maps in any layer.
+    fmap_max            = 128,          # Maximum number of feature maps in any layer.
     nonlinearity        = 'lrelu',      # Activation function: 'relu', 'lrelu',
     use_wscale          = True,         # Enable equalized learning rate?
     mbstd_group_size    = 4,            # Group size for the minibatch standard deviation layer, 0 = disable.

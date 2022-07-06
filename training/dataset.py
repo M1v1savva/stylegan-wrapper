@@ -11,8 +11,6 @@ import os
 import glob
 import numpy as np
 import tensorflow as tf
-tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
-
 import dnnlib
 import dnnlib.tflib as tflib
 
@@ -41,22 +39,22 @@ class TFRecordDataset:
         tfrecord_dir,               # Directory containing a collection of tfrecords files.
         resolution      = None,     # Dataset resolution, None = autodetect.
         label_file      = None,     # Relative path of the labels file, None = autodetect.
-        max_label_size  = 0,        # 0 = no labels, 'full' = full labels, <int> = N first label components.
+        max_label_size  = 'full',        # 0 = no labels, 'full' = full labels, <int> = N first label components.
         repeat          = True,     # Repeat dataset indefinitely.
         shuffle_mb      = 4096,     # Shuffle data within specified window (megabytes), 0 = disable shuffling.
         prefetch_mb     = 2048,     # Amount of data to prefetch (megabytes), 0 = disable prefetching.
         buffer_mb       = 256,      # Read buffer size (megabytes).
         num_threads     = 2):       # Number of concurrent threads.
 
-        self.tfrecord_dir       = tfrecord_dir
+        self.tfrecord_dir       = 'dataset/logos'
         self.resolution         = None
         self.resolution_log2    = None
         self.shape              = []        # [channel, height, width]
         self.dtype              = 'uint8'
         self.dynamic_range      = [0, 255]
         self.label_file         = label_file
-        self.label_size         = None      # [component]
         self.label_dtype        = None
+        self.label_size         = None      # [component]
         self._np_labels         = None
         self._tf_minibatch_in   = None
         self._tf_labels_var     = None
@@ -69,6 +67,10 @@ class TFRecordDataset:
         self._cur_lod           = -1
 
         # List tfrecords files and inspect their shapes.
+        print("##################################")
+        print("TF_DIRECTORY: ", self.tfrecord_dir)
+        print("WORKING DIRECTORY: ", os.getcwd())
+        print("##################################")
         assert os.path.isdir(self.tfrecord_dir)
         tfr_files = sorted(glob.glob(os.path.join(self.tfrecord_dir, '*.tfrecords')))
         assert len(tfr_files) >= 1
@@ -110,6 +112,7 @@ class TFRecordDataset:
             self._np_labels = self._np_labels[:, :max_label_size]
         self.label_size = self._np_labels.shape[1]
         self.label_dtype = self._np_labels.dtype.name
+        print("LABELS LOADED: ", self.label_size)
 
         # Build TF expressions.
         with tf.name_scope('Dataset'), tf.device('/cpu:0'):
@@ -227,7 +230,7 @@ class SyntheticDataset:
 #----------------------------------------------------------------------------
 # Helper func for constructing a dataset object using the given options.
 
-def load_dataset(class_name='training.dataset.TFRecordDataset', data_dir=None, verbose=False, **kwargs):
+def load_dataset(class_name='training.dataset.TFRecordDataset', data_dir=None, verbose=True, **kwargs):
     adjusted_kwargs = dict(kwargs)
     if 'tfrecord_dir' in adjusted_kwargs and data_dir is not None:
         adjusted_kwargs['tfrecord_dir'] = os.path.join(data_dir, adjusted_kwargs['tfrecord_dir'])

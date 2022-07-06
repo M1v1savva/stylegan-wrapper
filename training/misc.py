@@ -5,6 +5,11 @@
 # http://creativecommons.org/licenses/by-nc/4.0/ or send a letter to
 # Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
 
+################################################################################
+# CHANGES MADE: Row by row conditional image generation
+################################################################################
+
+
 """Miscellaneous utility functions."""
 
 import os
@@ -119,6 +124,14 @@ def list_network_pkls(run_id_or_run_dir, include_final=True):
         del pkls[0]
     return pkls
 
+def locate_latest_pkl():
+    allpickles = sorted(glob.glob(os.path.join(config.result_dir, '0*', 'network-*.pkl')))
+    latest_pickle = allpickles[-1]
+    resume_run_id = os.path.basename(os.path.dirname(latest_pickle))
+    RE_KIMG = re.compile('network-snapshot-(\d+).pkl')
+    kimg = int(RE_KIMG.match(os.path.basename(latest_pickle)).group(1))
+    return (locate_network_pkl(resume_run_id), float(kimg))
+
 def locate_network_pkl(run_id_or_run_dir_or_network_pkl, snapshot_or_network_pkl=None):
     for candidate in [snapshot_or_network_pkl, run_id_or_run_dir_or_network_pkl]:
         if isinstance(candidate, str):
@@ -196,29 +209,27 @@ def apply_mirror_augment(minibatch):
 
 def setup_snapshot_image_grid(G, training_set,
     size    = '1080p',      # '1080p' = to be viewed on 1080p display, '4k' = to be viewed on 4k display.
-    layout  = 'random'):    # 'random' = grid contents are selected randomly, 'row_per_class' = each row corresponds to one class label.
+    layout  = 'row_per_class'):    # 'random' = grid contents are selected randomly, 'row_per_class' = each row corresponds to one class label.
+    #Set layout to random if random generation, or anything else for row = condition
 
+    layout = 'row_per_class'
+    #layout = 'random'
     # Select size.
-    gw = 1; gh = 1
-    if size == '1080p':
-        gw = np.clip(1920 // G.output_shape[3], 3, 32)
-        gh = np.clip(1080 // G.output_shape[2], 2, 32)
-    if size == '4k':
-        gw = np.clip(3840 // G.output_shape[3], 7, 32)
-        gh = np.clip(2160 // G.output_shape[2], 4, 32)
+    gw = 30; gh = 10
+
 
     # Initialize data arrays.
     reals = np.zeros([gw * gh] + training_set.shape, dtype=training_set.dtype)
     labels = np.zeros([gw * gh, training_set.label_size], dtype=training_set.label_dtype)
     latents = np.random.randn(gw * gh, *G.input_shape[1:])
 
-    # Random layout.
     if layout == 'random':
         reals[:], labels[:] = training_set.get_minibatch_np(gw * gh)
 
-    # Class-conditional layouts.
     class_layouts = dict(row_per_class=[gw,1], col_per_class=[1,gh], class4x4=[4,4])
-    if layout in class_layouts:
+
+    if layout != 'random':
+        print("Conditional")
         bw, bh = class_layouts[layout]
         nw = (gw - 1) // bw + 1
         nh = (gh - 1) // bh + 1
@@ -233,7 +244,10 @@ def setup_snapshot_image_grid(G, training_set,
                 if all(len(block) >= bw * bh for block in blocks):
                     break
         for i, block in enumerate(blocks):
+            print(i)
             for j, (real, label) in enumerate(block):
+                print(j)
+                print("LABEL: ", label)
                 x = (i %  nw) * bw + j %  bw
                 y = (i // nw) * bh + j // bw
                 if x < gw and y < gh:

@@ -12,7 +12,6 @@ import time
 import hashlib
 import numpy as np
 import tensorflow as tf
-tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 import dnnlib
 import dnnlib.tflib as tflib
 
@@ -111,7 +110,7 @@ class MetricBase:
         while True:
             latents = np.random.randn(minibatch_size, *Gs.input_shape[1:])
             fmt = dict(func=tflib.convert_images_to_uint8, nchw_to_nhwc=True)
-            images = Gs.run(latents, None, output_transform=fmt, is_validation=True, num_gpus=num_gpus, assume_frozen=True)
+            images = Gs.run(latents, None, truncation_psi=0.7, output_transform=fmt, is_validation=True, num_gpus=num_gpus, assume_frozen=True)
             yield images
 
 #----------------------------------------------------------------------------

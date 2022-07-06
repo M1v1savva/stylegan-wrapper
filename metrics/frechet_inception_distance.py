@@ -5,13 +5,17 @@
 # http://creativecommons.org/licenses/by-nc/4.0/ or send a letter to
 # Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
 
+
+################################################################################
+# CHANGES MADE: FID selects random class-conditions during scoring
+################################################################################
+
 """Frechet Inception Distance (FID)."""
 
 import os
 import numpy as np
 import scipy
 import tensorflow as tf
-tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 import dnnlib.tflib as tflib
 
 from metrics import metric_base
@@ -52,8 +56,20 @@ class FID(metric_base.MetricBase):
             with tf.device('/gpu:%d' % gpu_idx):
                 Gs_clone = Gs.clone()
                 inception_clone = inception.clone()
-                latents = tf.random_normal([self.minibatch_per_gpu] + Gs_clone.input_shape[1:])
-                images = Gs_clone.get_output_for(latents, None, is_validation=True, randomize_noise=True)
+
+                labels_exist = input("Labelled Data? [True/False] ")
+                if labels_exist == True:
+                    a = np.random.randint(0,10, self.minibatch_per_gpu)
+                    labels = np.zeros((a.shape[0], a.max()+1))
+                    labels[np.arange(len(a)), a] = 1
+                    ''' End '''
+                    print("[INFO] Getting Generator Output")
+                    latents = tf.random_normal([self.minibatch_per_gpu] + Gs_clone.input_shape[1:])
+                    images = Gs_clone.get_output_for(latents, labels, is_validation=True, randomize_noise=True)
+                else:
+                    latents = tf.random_normal([self.minibatch_per_gpu] + Gs_clone.input_shape[1:])
+                    images = Gs_clone.get_output_for(latents, None, is_validation=True, randomize_noise=True)
+
                 images = tflib.convert_images_to_uint8(images)
                 result_expr.append(inception_clone.get_output_for(images))
 

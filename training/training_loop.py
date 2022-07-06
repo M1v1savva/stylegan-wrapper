@@ -10,8 +10,6 @@
 import os
 import numpy as np
 import tensorflow as tf
-tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
-
 import dnnlib
 import dnnlib.tflib as tflib
 from dnnlib.tflib.autosummary import autosummary
@@ -64,9 +62,9 @@ def training_schedule(
     minibatch_base          = 16,       # Maximum minibatch size, divided evenly among GPUs.
     minibatch_dict          = {},       # Resolution-specific overrides.
     max_minibatch_per_gpu   = {},       # Resolution-specific maximum minibatch size per GPU.
-    G_lrate_base            = 0.001,    # Learning rate for the generator.
+    G_lrate_base            = 0.0003,    # Learning rate for the generator.
     G_lrate_dict            = {},       # Resolution-specific overrides.
-    D_lrate_base            = 0.001,    # Learning rate for the discriminator.
+    D_lrate_base            = 0.0003,    # Learning rate for the discriminator.
     D_lrate_dict            = {},       # Resolution-specific overrides.
     lrate_rampup_kimg       = 0,        # Duration of learning rate ramp-up.
     tick_kimg_base          = 160,      # Default interval of progress snapshots.
@@ -125,11 +123,11 @@ def training_loop(
     metric_arg_list         = [],       # Options for MetricGroup.
     tf_config               = {},       # Options for tflib.init_tf().
     G_smoothing_kimg        = 10.0,     # Half-life of the running average of generator weights.
-    D_repeats               = 1,        # How many times the discriminator is trained per G iteration.
-    minibatch_repeats       = 4,        # Number of minibatches to run before adjusting training parameters.
+    D_repeats               = 2,        # How many times the discriminator is trained per G iteration.
+    minibatch_repeats       = 1,        # Number of minibatches to run before adjusting training parameters.
     reset_opt_for_new_lod   = True,     # Reset optimizer internal state (e.g. Adam moments) when new layers are introduced?
-    total_kimg              = 15000,    # Total length of the training, measured in thousands of real images.
-    mirror_augment          = False,    # Enable mirror augment?
+    total_kimg              = 20000,    # Total length of the training, measured in thousands of real images.
+    mirror_augment          = True,    # Enable mirror augment?
     drange_net              = [-1,1],   # Dynamic range used when feeding image data to the networks.
     image_snapshot_ticks    = 1,        # How often to export image snapshots?
     network_snapshot_ticks  = 10,       # How often to export network snapshots?
@@ -150,7 +148,11 @@ def training_loop(
     # Construct networks.
     with tf.device('/gpu:0'):
         if resume_run_id is not None:
-            network_pkl = misc.locate_network_pkl(resume_run_id, resume_snapshot)
+            #network_pkl = misc.locate_network_pkl(resume_run_id, resume_snapshot)
+            if resume_run_id == 'latest':
+                network_pkl, resume_kimg = misc.locate_latest_pkl()
+            else:
+                network_pkl = misc.locate_network_pkl(resume_run_id, resume_snapshot)
             print('Loading networks from "%s"...' % network_pkl)
             G, D, Gs = misc.load_pkl(network_pkl)
         else:
@@ -263,7 +265,7 @@ def training_loop(
             if cur_tick % network_snapshot_ticks == 0 or done or cur_tick == 1:
                 pkl = os.path.join(submit_config.run_dir, 'network-snapshot-%06d.pkl' % (cur_nimg // 1000))
                 misc.save_pkl((G, D, Gs), pkl)
-                metrics.run(pkl, run_dir=submit_config.run_dir, num_gpus=submit_config.num_gpus, tf_config=tf_config)
+                #metrics.run(pkl, run_dir=submit_config.run_dir, num_gpus=submit_config.num_gpus, tf_config=tf_config)
 
             # Update summaries and RunContext.
             metrics.update_autosummaries()
