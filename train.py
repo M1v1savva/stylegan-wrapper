@@ -16,6 +16,9 @@ from metrics import metric_base
 import tensorflow as tf
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
+import json
+import os
+
 #----------------------------------------------------------------------------
 # Official training configs for StyleGAN, targeted mainly for FFHQ.
 
@@ -176,6 +179,30 @@ if 0:
 # Main entry point for training.
 # Calls the function indicated by 'train' using the selected options.
 
+def update_config():
+    with open('current_config.json') as f:
+        train_config = json.load(f)
+
+    global desc, dataset, train, submit_config, sched
+    desc = train_config['model_name']
+    desc += train_config['dataset_name']
+    dataset = EasyDict(tfrecord_dir=train_config['dataset_name'])
+    train.mirror_augment = train_config['mirror_augment']
+
+    if train_config['num_gpus'] == 1:
+        desc += '-1gpu'; submit_config.num_gpus = 1; sched.minibatch_base = 4; sched.minibatch_dict = {4: 128, 8: 128, 16: 128, 32: 64, 64: 32, 128: 16, 256: 8, 512: 4}
+    elif train_config['num_gpus'] == 2:
+        desc += '-2gpu'; submit_config.num_gpus = 2; sched.minibatch_base = 8; sched.minibatch_dict = {4: 256, 8: 256, 16: 128, 32: 64, 64: 32, 128: 16, 256: 8}
+    elif train_config['num_gpus'] == 4:
+        desc += '-4gpu'; submit_config.num_gpus = 4; sched.minibatch_base = 16; sched.minibatch_dict = {4: 512, 8: 256, 16: 128, 32: 64, 64: 32, 128: 16}
+    elif train_config['num_gpus'] == 8:
+        desc += '-8gpu'; submit_config.num_gpus = 8; sched.minibatch_base = 32; sched.minibatch_dict = {4: 512, 8: 256, 16: 128, 32: 64, 64: 32}
+    else:
+        print('Invalid number of gpus in config.json. Possible options are 1, 2, 4 and 8.')
+        exit(0)
+
+    train.total_kimg = train_config['total_kimg']
+
 def main():
     kwargs = EasyDict(train)
     kwargs.update(G_args=G, D_args=D, G_opt_args=G_opt, D_opt_args=D_opt, G_loss_args=G_loss, D_loss_args=D_loss)
@@ -188,8 +215,9 @@ def main():
 
 #----------------------------------------------------------------------------
 
-def wrapper_call(config_path):
-    print(config_path)
+def wrapper_call():
+    update_config()
+    main()
 
 if __name__ == "__main__":
     main()

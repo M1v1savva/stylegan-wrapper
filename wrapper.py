@@ -2,6 +2,7 @@ import sys
 import argparse
 from dataset_tool import create_from_images
 from train import wrapper_call
+import os
 
 import tensorflow as tf 
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
@@ -9,12 +10,12 @@ tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 def create_dataset(input, output):
     create_from_images(output, input, 1)
 
-def train(path):
-    wrapper_call(path)
+def train(config_path):
+    os.system("cp %s current_config.json" % config_path)
+    wrapper_call()
 
 def fid(path1, path2):
-    print(path1)
-    print(path2)
+    os.system('python -m pytorch_fid %s %s' % (path1, path2))
 
 def exec_cmd(argv):
     prog = argv[0]
@@ -27,7 +28,7 @@ def exec_cmd(argv):
     dataset.add_argument('-o', '--output', help='path to output folder')
     
     train = subparser.add_parser('train', help='train the model')
-    train.add_argument('path', help='path to config file')
+    train.add_argument('config_path', help='path to config file')
     
     fid = subparser.add_parser('fid', help='calculate FID')
     fid.add_argument('path1', help='path to the first image directory')
