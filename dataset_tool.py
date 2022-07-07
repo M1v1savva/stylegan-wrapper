@@ -22,6 +22,8 @@ import PIL.Image
 import dnnlib.tflib as tflib
 import pickle
 from training import dataset
+import json
+from config.py import data_dir
 
 #----------------------------------------------------------------------------
 
@@ -293,12 +295,20 @@ def unpickle(file):
         dict = pickle.load(fo, encoding='bytes')
     return dict
 
+label_dict_path = '../data/mypickle.pickle'
+num_labels = 10
+
+cfg_output_dir = 'dataset/anime'
+cfg_input_dir = '../data/holo'
+cfg_add_condition = 1
 
 def create_from_images(tfrecord_dir, image_dir, shuffle, add_condition):
     print("ADD CONDITION ", add_condition)
     print('Loading images from "%s"' % image_dir)
 
-    all_data = unpickle('../data/mypickle.pickle')
+    global label_dict_path, num_labels
+
+    all_data = unpickle(label_dict_path)
     image_filenames_temp = all_data["Filenames"]
     conditions_all = all_data["Labels"] #for others use Clusters
     assert len(conditions_all) == len(image_filenames_temp)
@@ -370,11 +380,21 @@ def create_from_images(tfrecord_dir, image_dir, shuffle, add_condition):
             print("Adding Labels")
             conditions = np.asarray(df["Labels"])
             #labels = np.random.randint(0,np.max(conditions),len(image_filenames))
-            onehot = np.zeros((conditions.size, np.max(conditions) + 1), dtype=np.float32)
+            onehot = np.zeros((conditions.size, num_labels), dtype=np.float32)
             onehot[np.arange(conditions.size), conditions] = 1.0
             print(onehot)
             tfr.add_labels(onehot)
 
+def update_config(config_path):
+    with open('current_config.json') as f:
+        dataset_config = json.load(f)
+    cfg_output_dir = data_dir + '/' + dataset_config['dataset_name']
+    cfg_input_dir = dataset_config['images_dir']
+    cfg_add_condition = 1
+
+def dataset_wrapper_call():
+    update_config()
+    create_from_images(cfg_output_dir, cfg_input_dir, 1, cfg_add_condition)
 
 #----------------------------------------------------------------------------
 

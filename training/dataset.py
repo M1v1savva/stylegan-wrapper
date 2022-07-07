@@ -13,6 +13,11 @@ import numpy as np
 import tensorflow as tf
 import dnnlib
 import dnnlib.tflib as tflib
+from config.py import data_dir
+import json
+
+with open('current_config.json') as f:
+    train_config = json.load(f)
 
 #----------------------------------------------------------------------------
 # Parse individual image from a tfrecords file.
@@ -34,6 +39,8 @@ def parse_tfrecord_np(record):
 #----------------------------------------------------------------------------
 # Dataset class that loads data from tfrecords files.
 
+
+
 class TFRecordDataset:
     def __init__(self,
         tfrecord_dir,               # Directory containing a collection of tfrecords files.
@@ -46,7 +53,8 @@ class TFRecordDataset:
         buffer_mb       = 256,      # Read buffer size (megabytes).
         num_threads     = 2):       # Number of concurrent threads.
 
-        self.tfrecord_dir       = 'dataset/logos'
+        #self.tfrecord_dir       = 'dataset/logos'
+        self.tfrecord_dir       = data_dir + '/' + train_config['dataset_name']
         self.resolution         = None
         self.resolution_log2    = None
         self.shape              = []        # [channel, height, width]

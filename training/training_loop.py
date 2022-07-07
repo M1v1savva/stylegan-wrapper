@@ -23,6 +23,9 @@ from metrics import metric_base
 
 import json
 
+with open('current_config.json') as f:
+    train_config = json.load(f)
+
 #----------------------------------------------------------------------------
 # Just-in-time processing of training images before feeding them to the networks.
 

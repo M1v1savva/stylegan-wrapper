@@ -1,4 +1,4 @@
-﻿# Copyright (c) 2019, NVIDIA CORPORATION. All rights reserved.
+# Copyright (c) 2019, NVIDIA CORPORATION. All rights reserved.
 #
 # This work is licensed under the Creative Commons Attribution-NonCommercial
 # 4.0 International License. To view a copy of this license, visit
@@ -11,6 +11,11 @@ import numpy as np
 import tensorflow as tf
 import dnnlib
 import dnnlib.tflib as tflib
+
+import json 
+
+with open('current_config.json') as f:
+    train_config = json.load(f)
 
 # NOTE: Do not import any application-specific modules here!
 # Specify all network parameters as kwargs.
