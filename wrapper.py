@@ -9,6 +9,7 @@ tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
 def create_dataset(config_path):
     os.system("cp %s current_config.json" % config_path)
+    print("cp %s current_config.json" % config_path)
     dataset_wrapper_call()
 
 def train(config_path):

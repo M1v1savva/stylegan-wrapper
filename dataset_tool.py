@@ -23,7 +23,8 @@ import dnnlib.tflib as tflib
 import pickle
 from training import dataset
 import json
-from config.py import data_dir
+from paths import data_dir
+from tqdm import tqdm
 
 #----------------------------------------------------------------------------
 
@@ -298,8 +299,8 @@ def unpickle(file):
 label_dict_path = '../data/mypickle.pickle'
 num_labels = 10
 
-cfg_output_dir = 'dataset/anime'
-cfg_input_dir = '../data/holo'
+cfg_output_dir = 'anime'
+cfg_input_dir = '../holo'
 cfg_add_condition = 1
 
 def create_from_images(tfrecord_dir, image_dir, shuffle, add_condition):
@@ -308,7 +309,9 @@ def create_from_images(tfrecord_dir, image_dir, shuffle, add_condition):
 
     global label_dict_path, num_labels
 
-    all_data = unpickle(label_dict_path)
+    filename = os.path.join(cfg_input_dir, label_dict_path)
+    print(filename)
+    all_data = unpickle(filename)
     image_filenames_temp = all_data["Filenames"]
     conditions_all = all_data["Labels"] #for others use Clusters
     assert len(conditions_all) == len(image_filenames_temp)
@@ -320,7 +323,7 @@ def create_from_images(tfrecord_dir, image_dir, shuffle, add_condition):
     if len(image_filenames_temp) == 0:
         error('No input images found')
 
-    img = np.asarray(PIL.Image.open(image_dir + df['Filenames'][0]))
+    img = np.asarray(PIL.Image.open(cfg_input_dir + df['Filenames'][0]))
     resolution = img.shape[0]
     channels = img.shape[2] if img.ndim == 3 else 1
     if img.shape[1] != resolution:
@@ -333,18 +336,18 @@ def create_from_images(tfrecord_dir, image_dir, shuffle, add_condition):
 
     drop = []
     df_copy = df.copy()
-    for i in range(len(df["Filenames"])):
-        img = np.asarray(PIL.Image.open(image_dir + df["Filenames"].iloc[i]))
+    for i in tqdm(range(len(df["Filenames"]))):
+        img = np.asarray(PIL.Image.open(cfg_input_dir + df["Filenames"].iloc[i]))
         if channels == 1:
             img = img[np.newaxis, :, :] # HW => CHW
         else:
             try:
                 img = img.transpose([2, 0, 1]) # HWC => CHW
 
-                print("added")
+                #print("added")
             except:
                 drop.append(i)
-                print("deleted")
+                #print("deleted")
                 continue
 
     print("NUMBER OF IMAGES BEFORE: ", len(df))
@@ -356,8 +359,8 @@ def create_from_images(tfrecord_dir, image_dir, shuffle, add_condition):
         drop = []
         deleted = []
         for idx in range(order.size):
-            print("HERE ",df["Filenames"].iloc[order[idx]])
-            img = np.asarray(PIL.Image.open(image_dir + df["Filenames"].iloc[order[idx]]))
+            #print("HERE ",df["Filenames"].iloc[order[idx]])
+            img = np.asarray(PIL.Image.open(cfg_input_dir + df["Filenames"].iloc[order[idx]]))
             if channels == 1:
                 img = img[np.newaxis, :, :] # HW => CHW
             else:
@@ -366,31 +369,41 @@ def create_from_images(tfrecord_dir, image_dir, shuffle, add_condition):
                     tfr.add_image(img)
                 except:
                     #os.remove(image_filenames[order[idx]])
-                    print("DELETED")
+                    #print("DELETED")
                     drop.append(df.index[order[idx]])
-                    print("###########")
+                    #print("###########")
                     deleted.append(df["Filenames"].iloc[order[idx]])
                     continue
 
 
-        print("############# DELETED FILENAMES ############")
-        print(deleted)
+        #print("############# DELETED FILENAMES ############")
+        #print(deleted)
         df = df.drop(drop)
         if add_condition == 1:
-            print("Adding Labels")
+            #print("Adding Labels")
             conditions = np.asarray(df["Labels"])
             #labels = np.random.randint(0,np.max(conditions),len(image_filenames))
             onehot = np.zeros((conditions.size, num_labels), dtype=np.float32)
             onehot[np.arange(conditions.size), conditions] = 1.0
-            print(onehot)
+            #print(onehot)
             tfr.add_labels(onehot)
 
-def update_config(config_path):
+def update_config():
     with open('current_config.json') as f:
         dataset_config = json.load(f)
+    
+    global cfg_output_dir, cfg_input_dir, cfg_add_condition
+    global label_dict_path, num_labels
+
     cfg_output_dir = data_dir + '/' + dataset_config['dataset_name']
     cfg_input_dir = dataset_config['images_dir']
-    cfg_add_condition = 1
+    if dataset_config['num_labels'] > 0: 
+        cfg_add_condition = 1
+    else:
+        cfg_add_condititon = 0
+
+    num_labels = dataset_config['num_labels']
+    label_dict_path = dataset_config['file_list_path']     
 
 def dataset_wrapper_call():
     update_config()

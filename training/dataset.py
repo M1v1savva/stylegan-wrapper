@@ -13,11 +13,8 @@ import numpy as np
 import tensorflow as tf
 import dnnlib
 import dnnlib.tflib as tflib
-from config.py import data_dir
+from paths import data_dir
 import json
-
-with open('current_config.json') as f:
-    train_config = json.load(f)
 
 #----------------------------------------------------------------------------
 # Parse individual image from a tfrecords file.
@@ -54,7 +51,7 @@ class TFRecordDataset:
         num_threads     = 2):       # Number of concurrent threads.
 
         #self.tfrecord_dir       = 'dataset/logos'
-        self.tfrecord_dir       = data_dir + '/' + train_config['dataset_name']
+        self.tfrecord_dir       = None,
         self.resolution         = None
         self.resolution_log2    = None
         self.shape              = []        # [channel, height, width]
@@ -79,6 +76,7 @@ class TFRecordDataset:
         print("TF_DIRECTORY: ", self.tfrecord_dir)
         print("WORKING DIRECTORY: ", os.getcwd())
         print("##################################")
+        print(self.tfrecord_dir)
         assert os.path.isdir(self.tfrecord_dir)
         tfr_files = sorted(glob.glob(os.path.join(self.tfrecord_dir, '*.tfrecords')))
         assert len(tfr_files) >= 1

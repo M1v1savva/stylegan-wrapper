@@ -21,7 +21,7 @@ from collections import defaultdict
 import PIL.Image
 import dnnlib
 
-import config
+import paths
 from training import dataset
 
 #----------------------------------------------------------------------------

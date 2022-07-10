@@ -15,7 +15,7 @@ import copy
 import dnnlib
 from dnnlib import EasyDict
 
-import config
+import paths
 from metrics import metric_base
 
 import json
@@ -204,15 +204,15 @@ def update_config():
         print('Invalid number of gpus in config.json. Possible options are 1, 2, 4 and 8.')
         exit(0)
 
-    train.total_kimg = train_config['total_kimg']
+    train.total_kimg = train_config['total_kimgs']
 
 def main():
     kwargs = EasyDict(train)
     kwargs.update(G_args=G, D_args=D, G_opt_args=G_opt, D_opt_args=D_opt, G_loss_args=G_loss, D_loss_args=D_loss)
     kwargs.update(dataset_args=dataset, sched_args=sched, grid_args=grid, metric_arg_list=metrics, tf_config=tf_config)
     kwargs.submit_config = copy.deepcopy(submit_config)
-    kwargs.submit_config.run_dir_root = dnnlib.submission.submit.get_template_from_path(config.result_dir)
-    kwargs.submit_config.run_dir_ignore += config.run_dir_ignore
+    kwargs.submit_config.run_dir_root = dnnlib.submission.submit.get_template_from_path(paths.result_dir)
+    kwargs.submit_config.run_dir_ignore += paths.run_dir_ignore
     kwargs.submit_config.run_desc = desc
     dnnlib.submit_run(**kwargs)
 

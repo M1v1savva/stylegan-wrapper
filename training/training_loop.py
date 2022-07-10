@@ -15,7 +15,7 @@ import dnnlib
 import dnnlib.tflib as tflib
 from dnnlib.tflib.autosummary import autosummary
 
-import config
+import paths
 import train
 from training import dataset
 from training import misc
@@ -149,7 +149,7 @@ def training_loop(
     tflib.init_tf(tf_config)
 
     # Load training set.
-    training_set = dataset.load_dataset(data_dir=config.data_dir, verbose=True, **dataset_args)
+    training_set = dataset.load_dataset(data_dir=paths.data_dir, verbose=True, **dataset_args)
 
     # Construct networks.
     with tf.device('/gpu:0'):

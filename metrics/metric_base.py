@@ -15,7 +15,7 @@ import tensorflow as tf
 import dnnlib
 import dnnlib.tflib as tflib
 
-import config
+import paths
 from training import misc
 from training import dataset
 
