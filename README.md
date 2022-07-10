@@ -5,7 +5,7 @@
 ### Disclaimer
 
 - The wrapper still requires proper testing, don't use if you have limited computational time.
-- This repo allows to call [FID pytorch implementation](https://github.com/mseitzer/pytorch-fid) so that you don't have to look for it youself. Majority of scientific papers utilize [original tensorflow implementation](https://github.com/bioinf-jku/TTUR), you might consider using (the original)[https://github.com/bioinf-jku/TTUR] if you plan to work with SOTA
+- This repo allows to call [FID pytorch implementation](https://github.com/mseitzer/pytorch-fid) so that you don't have to look for it youself. Majority of scientific papers utilize [original tensorflow implementation](https://github.com/bioinf-jku/TTUR), you might consider using [the original](https://github.com/bioinf-jku/TTUR) if you plan to work with SOTA
 
 ---
 
@@ -19,7 +19,7 @@
 ### Requirements: 
 - numpy 1.19.5
 - tensorflow 1.x
-- (pytorch_fid)[https://github.com/mseitzer/pytorch-fid]
+- [pytorch_fid](https://github.com/mseitzer/pytorch-fid)
 
 ### How to use:
 - Preprocess the images into tfrecords
