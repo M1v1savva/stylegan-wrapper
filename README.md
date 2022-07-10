@@ -5,7 +5,7 @@
 ### Disclaimer
 
 - The wrapper still requires proper testing, don't use if you have limited computational time.
-- This repo allows to call FID pytorch implementation so that you don't have to look for it youself. Majority of scientific papers utilize original tensorflow implementation, you might consider using the original if you plan to work with SOTA
+- This repo allows to call [FID pytorch implementation](https://github.com/mseitzer/pytorch-fid) so that you don't have to look for it youself. Majority of scientific papers utilize [original tensorflow implementation](https://github.com/bioinf-jku/TTUR), you might consider using (the original)[https://github.com/bioinf-jku/TTUR] if you plan to work with SOTA
 
 ---
 
@@ -19,7 +19,7 @@
 ### Requirements: 
 - numpy 1.19.5
 - tensorflow 1.x
-- pytorch_fid
+- (pytorch_fid)[https://github.com/mseitzer/pytorch-fid]
 
 ### How to use:
 - Preprocess the images into tfrecords
@@ -42,14 +42,14 @@ python wrapper.py fid path/to/imageset1 path/to/imageset2
 - `output_resolution` - output resolution of the model
 - `dataset_mirror_augment` - specify whether you want StyleGAN dataset tool to mirror-augment the images
 - `dataset_dict_path` - path to the dict file<br/>
-The dictionary has the following form and lists every image and its class in the dataset. For non-conditional model, 'Labels' key can be omitted but the .pkl file of the dict is still required.
+The dictionary has the following form and lists every image and its class in the dataset. For non-conditional model, 'Labels' key can be omitted but the .pkl file of the dict is still required. More [here](https://github.com/cedricoeldorf/ConditionalStyleGAN)
 ```console
 mypickle = {"Filenames": list_of_file_paths, "Labels": class_condition_labels}
 ```
 - `model_name` - name of the model for results saves
-- `dataset_name` - name of the preprocessed dataset (tfrecords folder
+- `dataset_name` - name of the preprocessed dataset (tfrecords folder)
 - `num_gpus` - number of gpus used in training
-- `total_kimgs` - total number of kimgs to train for. Similar to epoches, 7500 for plausible results, 3000 to test the model. For transfer learning put total final kimgs (e.g. when training from 7000 to 7500, put 7500)
+- `total_kimgs` - total number of kimgs to train for. Similar to epoches, 7500 for plausible results, 3000 to test the model. For transfer learning put total final kimgs (e.g. when training from 7000 to 7500, put 7500). More [here](https://github.com/NVlabs/stylegan)
 - `output_model_architecture` - logging flag, leave false if you don't want your console flooded
 - `resume_snapshot` - for transfer learning, path to the network .pkl weights snapshot
 - `resume_kimg` - for transfer learning, new starting kimg value
@@ -76,5 +76,26 @@ mypickle = {"Filenames": list_of_file_paths, "Labels": class_condition_labels}
     "resume_kimg": null,
     "image_snapshot_ticks": null,
     "network_snapshot_ticks": null
+}
+```
+---
+### References
+[https://github.com/NVlabs/stylegan](StyleGAN)
+[https://github.com/cedricoeldorf/ConditionalStyleGAN](Conditional StyleGAN)
+[https://github.com/cedricoeldorf/ConditionalStyleGAN](PyTorch FID)
+
+---
+
+### Citing
+
+If you use this repository in your research, consider citing it with the following BibTeX entry:
+
+```
+@misc{stylegan-wrapper,
+  author={Ivan Poliakov},
+  title={{stylegan-wrapper: Minimalist Conditional StyleGAN wrapper}},
+  month={July},
+  year={2022},
+  howpublished={\url{https://github.com/M1v1savva/stylegan-wrapper}},
 }
 ```
