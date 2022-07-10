@@ -206,6 +206,8 @@ def update_config():
 
     train.total_kimg = train_config['total_kimgs']
 
+    print(train_config['dataset_name'])
+
 def main():
     kwargs = EasyDict(train)
     kwargs.update(G_args=G, D_args=D, G_opt_args=G_opt, D_opt_args=D_opt, G_loss_args=G_loss, D_loss_args=D_loss)

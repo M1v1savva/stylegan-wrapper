@@ -170,7 +170,7 @@ def training_loop(
     with open('current_config.json') as f:
         train_config = json.load(f)
 
-    if train_config['output_model_arch']:
+    if train_config['log_model_arch']:
         G.print_layers() 
         D.print_layers()
 
