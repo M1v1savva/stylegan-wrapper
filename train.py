@@ -189,8 +189,8 @@ def update_config():
     global desc, dataset, train, submit_config, sched
     desc = train_config['model_name']
     desc += train_config['dataset_name']
-    dataset = EasyDict(tfrecord_dir=train_config['dataset_name'])
-    train.mirror_augment = train_config['mirror_augment']
+    dataset = EasyDict(tfrecord_dir=train_config['dataset_name'], resolution=train_config['output_resolution'])
+    train.mirror_augment = train_config['dataset_mirror_augment']
 
     if train_config['num_gpus'] == 1:
         desc += '-1gpu'; submit_config.num_gpus = 1; sched.minibatch_base = 4; sched.minibatch_dict = {4: 128, 8: 128, 16: 128, 32: 64, 64: 32, 128: 16, 256: 8, 512: 4}
@@ -205,8 +205,6 @@ def update_config():
         exit(0)
 
     train.total_kimg = train_config['total_kimgs']
-
-    print(train_config['dataset_name'])
 
 def main():
     kwargs = EasyDict(train)

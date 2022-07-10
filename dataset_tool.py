@@ -309,9 +309,8 @@ def create_from_images(tfrecord_dir, image_dir, shuffle, add_condition):
 
     global label_dict_path, num_labels
 
-    filename = os.path.join(cfg_input_dir, label_dict_path)
-    print(filename)
-    all_data = unpickle(filename)
+    print('Loading dataset dict from "%s"' % label_dict_path)
+    all_data = unpickle(label_dict_path)
     image_filenames_temp = all_data["Filenames"]
     conditions_all = all_data["Labels"] #for others use Clusters
     assert len(conditions_all) == len(image_filenames_temp)
@@ -323,7 +322,7 @@ def create_from_images(tfrecord_dir, image_dir, shuffle, add_condition):
     if len(image_filenames_temp) == 0:
         error('No input images found')
 
-    img = np.asarray(PIL.Image.open(cfg_input_dir + df['Filenames'][0]))
+    img = np.asarray(PIL.Image.open(os.path.join(cfg_input_dir, df['Filenames'][0])))
     resolution = img.shape[0]
     channels = img.shape[2] if img.ndim == 3 else 1
     if img.shape[1] != resolution:
@@ -337,7 +336,7 @@ def create_from_images(tfrecord_dir, image_dir, shuffle, add_condition):
     drop = []
     df_copy = df.copy()
     for i in tqdm(range(len(df["Filenames"]))):
-        img = np.asarray(PIL.Image.open(cfg_input_dir + df["Filenames"].iloc[i]))
+        img = np.asarray(PIL.Image.open(os.path.join(cfg_input_dir, df["Filenames"].iloc[i])))
         if channels == 1:
             img = img[np.newaxis, :, :] # HW => CHW
         else:
@@ -360,7 +359,7 @@ def create_from_images(tfrecord_dir, image_dir, shuffle, add_condition):
         deleted = []
         for idx in range(order.size):
             #print("HERE ",df["Filenames"].iloc[order[idx]])
-            img = np.asarray(PIL.Image.open(cfg_input_dir + df["Filenames"].iloc[order[idx]]))
+            img = np.asarray(PIL.Image.open(os.path.join(cfg_input_dir, df["Filenames"].iloc[order[idx]])))
             if channels == 1:
                 img = img[np.newaxis, :, :] # HW => CHW
             else:
@@ -395,7 +394,7 @@ def update_config():
     global cfg_output_dir, cfg_input_dir, cfg_add_condition
     global label_dict_path, num_labels
 
-    cfg_output_dir = data_dir + '/' + dataset_config['dataset_name']
+    cfg_output_dir = os.path.join(data_dir, dataset_config['dataset_name'])
     cfg_input_dir = dataset_config['images_dir']
     if dataset_config['num_labels'] > 0: 
         cfg_add_condition = 1
@@ -403,7 +402,7 @@ def update_config():
         cfg_add_condititon = 0
 
     num_labels = dataset_config['num_labels']
-    label_dict_path = dataset_config['file_list_path']     
+    label_dict_path = dataset_config['dataset_dict_path']     
 
 def dataset_wrapper_call():
     update_config()

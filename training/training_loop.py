@@ -23,9 +23,6 @@ from metrics import metric_base
 
 import json
 
-with open('current_config.json') as f:
-    train_config = json.load(f)
-
 #----------------------------------------------------------------------------
 # Just-in-time processing of training images before feeding them to the networks.
 
@@ -143,6 +140,18 @@ def training_loop(
     resume_snapshot         = None,     # Snapshot index to resume training from, None = autodetect.
     resume_kimg             = 0.0,      # Assumed training progress at the beginning. Affects reporting and training schedule.
     resume_time             = 0.0):     # Assumed wallclock time at the beginning. Affects reporting.
+    
+    with open('current_config.json') as f:
+        train_config = json.load(f)
+
+    if train_config['resume_snapshot'] != None:
+        resume_snapshot = train_config['resume_snapshot']
+    if train_config['resume_kimg'] != None:
+        resume_kimg = train_config['resume_kimg']
+    if train_config['image_snapshot_ticks'] != None:
+        image_snapshot_ticks = train_config['image_snapshot_ticks']
+    if train_config['network_snapshot_ticks'] != None:
+        network_snapshot_ticks = train_config['network_snapshot_ticks']
 
     # Initialize dnnlib and TensorFlow.
     ctx = dnnlib.RunContext(submit_config, train)
@@ -167,10 +176,7 @@ def training_loop(
             D = tflib.Network('D', num_channels=training_set.shape[0], resolution=training_set.shape[1], label_size=training_set.label_size, **D_args)
             Gs = G.clone('Gs')
     
-    with open('current_config.json') as f:
-        train_config = json.load(f)
-
-    if train_config['log_model_arch']:
+    if train_config['output_model_architecture']:
         G.print_layers() 
         D.print_layers()
 

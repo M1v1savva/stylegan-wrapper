@@ -1,13 +1,20 @@
 {
-    "images_dir": "../holo/",
-    "mirror_augment": true,
+    "images_dir": "../data/holo/",
     "num_labels": 20,
-    "file_list_path": "../holo_label.pkl",
+    "output_resolution": 32,
+
+    "dataset_mirror_augment": true,
+    "dataset_dict_path": "../data/holo_label.pkl",
 
     "model_name": "cgan",
     "dataset_name": "anime",
     "num_gpus": 1,
     "total_kimgs": 140,
 
-    "log_model_arch": false
+    "output_model_architecture": false,
+
+    "resume_snapshot": null,
+    "resume_kimg": null,
+    "image_snapshot_ticks": null,
+    "network_snapshot_ticks": null
 }
