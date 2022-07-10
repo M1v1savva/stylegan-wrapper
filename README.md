@@ -80,9 +80,11 @@ mypickle = {"Filenames": list_of_file_paths, "Labels": class_condition_labels}
 ```
 ---
 ### References
-[https://github.com/NVlabs/stylegan](StyleGAN)
-[https://github.com/cedricoeldorf/ConditionalStyleGAN](Conditional StyleGAN)
-[https://github.com/cedricoeldorf/ConditionalStyleGAN](PyTorch FID)
+[StyleGAN](https://github.com/NVlabs/stylegan)
+
+[Conditional StyleGAN](https://github.com/cedricoeldorf/ConditionalStyleGAN)
+
+[PyTorch FID](https://github.com/cedricoeldorf/ConditionalStyleGAN)
 
 ---
 
